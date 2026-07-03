@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rosemount Protect - NeedingAdvice Partner</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #fff; }
+    iframe { border: none; width: 100%; height: 100vh; display: block; }
+  </style>
+</head>
+<body>
+  <iframe id="flyer-frame" src="./index.html"></iframe>
+  <script>
+    (function() {
+      var frame = document.getElementById('flyer-frame');
+
+      function hidePage1(doc) {
+        var pages = doc.querySelectorAll('.page');
+        if (pages.length >= 2) {
+          pages[0].style.display = 'none';
+          pages[0].style.visibility = 'hidden';
+          pages[0].style.height = '0';
+          pages[0].style.overflow = 'hidden';
+          pages[0].style.margin = '0';
+          pages[0].style.padding = '0';
+          var stack = doc.querySelector('.stack');
+          if (stack) {
+            stack.style.paddingTop = '0';
+            stack.style.marginTop = '0';
+            stack.style.gap = '0';
+          }
+          frame.contentWindow.scrollTo(0, 0);
+          return true;
+        }
+        return false;
+      }
+
+      frame.addEventListener('load', function() {
+        try {
+          var doc = frame.contentDocument || frame.contentWindow.document;
+          if (!hidePage1(doc)) {
+            // Pages may not be rendered yet - use MutationObserver
+            var observer = new MutationObserver(function(mutations, obs) {
+              if (hidePage1(doc)) {
+                obs.disconnect();
+              }
+            });
+            observer.observe(doc.body, { childList: true, subtree: true });
+            // Also try polling as fallback
+            var tries = 0;
+            var interval = setInterval(function() {
+              tries++;
+              if (hidePage1(doc) || tries > 50) {
+                clearInterval(interval);
+              }
+            }, 100);
+          }
+        } catch(e) {
+          console.error('Could not modify iframe:', e);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
